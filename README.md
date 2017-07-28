@@ -1,5 +1,5 @@
 # Holden
-Asistente inteligente para jugar al Holdem Texas Poker en cualquier página web.
+Asistente inteligente para jugar al Holdem Texas Poker con soporte para cualquier página web.
 
 Para el calculo de probabilidades se utiliza el siguiente repositorio: https://github.com/ktseng/holdem_calc
 
