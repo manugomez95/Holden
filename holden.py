@@ -7,6 +7,10 @@ import sys
 from PIL import Image
 from pytesseract import *
 
+# globales
+# IMPORTANTE! VALORES CONCRETOS PARA CARTAS EN ZYNGA
+c1=10; r1=15; c2=c1+145; r2=25
+
 ####################### FUNCIONES AUXILIARES ######################
 def classify_ssim(database, names, image):
 	# using ssim
@@ -14,58 +18,73 @@ def classify_ssim(database, names, image):
     i=0
     for example in database:
         s = ssim(image, example)
+        print(names[i] + ' = ' + str(s))
         if s>max:
             max=s
             result = names[i]
         i+=1
     return result
 
-####################### RECONOCIMIENTO ######################
-# RECONOCIMIENTO DE PALOS
-# carga de los palos (suits) de referencia
+def carta_valor(carta):
+    valor_cv = carta[c1:c1+150,r1:r1+145]
+    valor_pil = Image.fromarray(valor_cv)
+    valor = image_to_string(valor_pil, config='-psm 10')
+    # CHAPUZA -> 10 lo detecta como m
+    if valor == 'm':
+        valor = '10'
+    return valor
+
+def carta_palo(carta):
+    palo_cv = cv2.resize(carta[c2:c2+145,r2:r2+115], (345, 431))
+    palo = classify_ssim(suits, suits_names, palo_cv)
+    return palo
+
+def reconocer_carta(carta):
+    return carta_valor(carta)+carta_palo(carta)[0]
+##################################################################
+# carga de los palos (suits) de referencia globales
 suits = [0 for i in range(4)]
 suits_names = ["club", "diamond", "heart", "spade"]
 i=0
 for suit in suits_names:
-    im_name = "img/suits/" + suit + ".jpg"
+    im_name = "img/suits/" + suit + ".png"
     suits[i] = cv2.resize(cv2.imread(im_name, 0), (345, 431))
     i+=1
+##################################################################
 
-# pruebas reconocimiento de palos
-diamante_prueba = cv2.resize(cv2.imread("diamante_prueba.jpg", 0), (345, 431))
-corazon_prueba = cv2.resize(cv2.imread("corazon_prueba.png", 0), (345, 431))
-pica_prueba = cv2.resize(cv2.imread("pica_prueba.png", 0), (345, 431))
-#trebol_prueba = cv2.resize(cv2.imread("trebol_prueba.png", 0), (345, 431))
+# obtenemos imagen de una carta y la reconocemos
+#carta = cv2.resize(cv2.imread('img/pruebas/carta6.png', 0), (345, 431))
+#print(reconocer_carta(carta))
 
-print(classify_ssim(suits, suits_names, diamante_prueba))
-print(classify_ssim(suits, suits_names, corazon_prueba))
-print(classify_ssim(suits, suits_names, pica_prueba))
-#print(classify_ssim(suits, suits_names, trebol_prueba))
+image = Image.open('img/pruebas/mesa.png')
 
-# RECONOCIMIENTO DE CARACTERES
-# se obtiene la imagen de la carta
-#pil_im = Image.open('')
-pil_im = pil_im.convert('1', dither=Image.NONE)
-pil_im = pil_im.convert('RGB')
-cv_im = np.array(pil_im)
-cv_im = cv_im[:, :, ::-1].copy()
+image_data = np.asarray(image)
+image_data_blue = image_data[:,:,2]
 
-# de ahi pillamos la region que nos interesa (el caracter)
-c1 = 25
-r1 = 0
-cv_im = cv_im[c1:c1+150,r1:r1+150]
+median_blue = np.median(image_data_blue)
 
-# muestra la nueva imagen
-pil_im = Image.fromarray(cv_im)
-pil_im.show()
+non_empty_columns = np.where(image_data_blue.max(axis=0)>median_blue)[0]
+non_empty_rows = np.where(image_data_blue.max(axis=1)>median_blue)[0]
 
-# reconocimiento
-text = image_to_string(pil_im, config='-psm 10')
-print text
+boundingBox = (min(non_empty_rows), max(non_empty_rows), min(non_empty_columns), max(non_empty_columns))
+
+print boundingBox
 
 ####################### PRINCIPAL ######################
 # 1. Obtenemos las cartas que hay en la mesa.
-# (si no hay un pixel blanco donde debería estar la carta todavía no esta puesta)
+# (si no hay un pixel blanco donde deberia estar la carta todavia no esta puesta)
 # 2. Analizamos cada carta. (funcion analizar carta?)
 # 3. Concluimos estado de la mesa.
-# 4. Obtenemos información valiosa (con la calculadora de probabilidades)
+# 4. Obtenemos informacion valiosa (con la calculadora de probabilidades)
+
+################ MEJORAS PENDIENTES ####################
+# 1. Adaptacion sencilla a un nuevo tipo de baraja:
+#   - Le pasas una captura de una carta de cada palo (de la nueva baraja)
+#     indicandole las regiones importantes. El sistema aprende a reconocer los
+#     nuevos palos incluyendo capturas de ellos en img/suits
+# 2. Identificar cuantos jugadores hay en la mesa.
+# 3. Automatizar obtencion de c1, c2, r1 y r2 y posicion de todo en general.
+
+# DIMENSIONES DE LAS CARTAS: 49x36
+# ESPACIO ENTRE LAS CARTAS: 3-4 pixeles
+# PUNTO DE REFERENCIA: x:432, y:398-399
