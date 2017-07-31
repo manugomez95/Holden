@@ -53,22 +53,8 @@ for suit in suits_names:
 ##################################################################
 
 # obtenemos imagen de una carta y la reconocemos
-#carta = cv2.resize(cv2.imread('img/pruebas/carta6.png', 0), (345, 431))
-#print(reconocer_carta(carta))
-
-image = Image.open('img/pruebas/mesa.png')
-
-image_data = np.asarray(image)
-image_data_blue = image_data[:,:,2]
-
-median_blue = np.median(image_data_blue)
-
-non_empty_columns = np.where(image_data_blue.max(axis=0)>median_blue)[0]
-non_empty_rows = np.where(image_data_blue.max(axis=1)>median_blue)[0]
-
-boundingBox = (min(non_empty_rows), max(non_empty_rows), min(non_empty_columns), max(non_empty_columns))
-
-print boundingBox
+carta = cv2.resize(cv2.imread('img/pruebas/carta6.png', 0), (345, 431))
+print(reconocer_carta(carta))
 
 ####################### PRINCIPAL ######################
 # 1. Obtenemos las cartas que hay en la mesa.
