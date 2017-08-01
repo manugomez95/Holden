@@ -30,4 +30,4 @@ PASOS PARA AGREGAR CAMBIOS DE BRANCH A MASTER:
 
 Pytesseract - librería externa para reconocimiento de caracteres.
 En windows, te descargas esto: https://sourceforge.net/projects/tesseract-ocr-alt/files/tesseract-ocr-setup-3.02.02.exe/download.
-Y ademas en el prompt de anaconda haces "pip install pytesseract"
+Y ademas en el prompt de anaconda haces "pip install pytesseract".
