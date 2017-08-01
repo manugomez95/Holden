@@ -37,13 +37,17 @@ for c in cnts:
 	# approximate the contour
 	peri = cv2.arcLength(c, True)
 	approx = cv2.approxPolyDP(c, 0.05 * peri, True)
- 
+
 	# if our approximated contour has four points, then
 	# we can assume that we have found our screen
 	if len(approx) == 4:
 		screenCnt = approx
+
+		# screenCnt[contorno][vertice][eje]
+		screenCnt[0][0][0]
+
 		cv2.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
-		
+
 cv2.imshow("Cartas", image)
 cv2.waitKey()
 cv2.destroyAllWindows()
