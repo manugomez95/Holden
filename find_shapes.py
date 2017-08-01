@@ -1,5 +1,3 @@
-# OBJETIVO MARCAR TAPETE CON EL CURSOR Y DEVOLVER COORDENADAS DE LA ESQUINA IZQUIERDA SUPERIOR DE LA PRIMERA CARTA
-
 # import the necessary packages
 from skimage import exposure
 import numpy as np
@@ -54,7 +52,7 @@ def reconocer_mesa(image):
 			alto = der_inf[1] - izq_sup[1]
 			ancho = der_inf[0] - izq_sup[0]
 			ratio = alto/ancho
-			# segundo filtro, ¿tiene forma de carta?
+			# segundo filtro, tiene forma de carta?
 			if ratio>RATIO_MIN and ratio<RATIO_MAX:
 				posiciones_cartas.append(izq_sup[0])
 				alturas = np.append(alturas, alto)
