@@ -1,4 +1,3 @@
-# paquetes necesarios
 from skimage.measure import compare_ssim as ssim
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,11 +8,16 @@ from pytesseract import *
 
 # globales
 # IMPORTANTE! VALORES CONCRETOS PARA CARTAS EN ZYNGA
+# posible mejora: hacerlo mas general
 c1=10; r1=15; c2=c1+145; r2=25
 
 ####################### FUNCIONES AUXILIARES ######################
+# input:	database, las imagenes de los palos de referencia
+#			names, los nombres de cada palo
+#			image, imagen del palo que se quiere clasificar
+# output:	"club", "diamond", "heart" o "spade"
 def classify_ssim(database, names, image):
-	# using ssim
+	# usando ssim
     max=0
     i=0
     for example in database:
@@ -25,22 +29,30 @@ def classify_ssim(database, names, image):
         i+=1
     return result
 
+# input:	carta, imagen de la carta completa
+# output:	valor en formato string del 2 al 10, A, J, Q o K
 def carta_valor(carta):
     valor_cv = carta[c1:c1+150,r1:r1+145]
     valor_pil = Image.fromarray(valor_cv)
+	# aqui ocurre la magia, esta funcion es de pytesseract
     valor = image_to_string(valor_pil, config='-psm 10')
     # CHAPUZA -> 10 lo detecta como m
     if valor == 'm':
         valor = '10'
     return valor
 
+# input:	carta, imagen de la carta completa
+# output:	"club", "diamond", "heart" o "spade"
 def carta_palo(carta):
     palo_cv = cv2.resize(carta[c2:c2+145,r2:r2+115], (345, 431))
     palo = classify_ssim(suits, suits_names, palo_cv)
     return palo
 
+# input:	carta, imagen de la carta completa
+# output:	nombre de la carta listo para pasarlo a holdem_calc
 def reconocer_carta(carta):
     return carta_valor(carta)+carta_palo(carta)[0]
+
 ##################################################################
 # carga de los palos (suits) de referencia globales
 suits = [0 for i in range(4)]
@@ -52,25 +64,8 @@ for suit in suits_names:
     i+=1
 ##################################################################
 
+################## CODIGO QUE SE EJECUTA #########################
+
 # obtenemos imagen de una carta y la reconocemos
-carta = cv2.resize(cv2.imread('img/pruebas/carta6.png', 0), (345, 431))
+carta = cv2.resize(cv2.imread('img/pruebas/carta5.png', 0), (345, 431))
 print(reconocer_carta(carta))
-
-####################### PRINCIPAL ######################
-# 1. Obtenemos las cartas que hay en la mesa.
-# (si no hay un pixel blanco donde deberia estar la carta todavia no esta puesta)
-# 2. Analizamos cada carta. (funcion analizar carta?)
-# 3. Concluimos estado de la mesa.
-# 4. Obtenemos informacion valiosa (con la calculadora de probabilidades)
-
-################ MEJORAS PENDIENTES ####################
-# 1. Adaptacion sencilla a un nuevo tipo de baraja:
-#   - Le pasas una captura de una carta de cada palo (de la nueva baraja)
-#     indicandole las regiones importantes. El sistema aprende a reconocer los
-#     nuevos palos incluyendo capturas de ellos en img/suits
-# 2. Identificar cuantos jugadores hay en la mesa.
-# 3. Automatizar obtencion de c1, c2, r1 y r2 y posicion de todo en general.
-
-# DIMENSIONES DE LAS CARTAS: 49x36
-# ESPACIO ENTRE LAS CARTAS: 3-4 pixeles
-# PUNTO DE REFERENCIA: x:432, y:398-399
