@@ -11,7 +11,7 @@ Enlaces interesantes:
 
 COMANDOS BASICOS DE GIT:
 - Actualizar carpeta local (basicamente descarga los ficheros de la nube): git pull origin [jose/manu/master] (dependiendo de cual quieras pillar)
-- Actualizar carpeta remota (basicamente sube los ficheros a la nube): git push origin [jose/manu/master] (dependiendo de cual quieras actualizar)
+- Actualizar carpeta remota (basicamente sube los ficheros a la nube): git push origin [jose/manu] (dependiendo de cual quieras actualizar). NO HACER GIT PUSH MASTER, master lo actualizaremos de otra forma.
 - Saber en que rama estas y el estado: git status
 - Cambiar de rama: git checkout [jose/manu/master] (dependiendo de a cual te quieres cambiar)
 - Para saber que ramas existen: git branch
