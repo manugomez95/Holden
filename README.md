@@ -9,6 +9,13 @@ Enlaces interesantes:
  - Reconocimiento de figuras en una imagen: http://www.pyimagesearch.com/2014/08/04/opencv-python-color-detection/ y http://www.pyimagesearch.com/2014/04/21/building-pokedex-python-finding-game-boy-screen-step-4-6/
  - Git: https://github.com/Kunena/Kunena-Forum/wiki/Create-a-new-branch-with-git-and-manage-branches
 
+COMANDOS BASICOS DE GIT:
+- Actualizar carpeta local (descarga los ficheros): git pull origin [jose/manu/master] (dependiendo de cual quieras pillar)
+- Actualizar carpeta remota (sube los ficheros a "la nube"): git push origin [jose/manu/master] (dependiendo de cual quieras actualizar)
+- Saber en que rama estas y el estado: git status
+- Cambiar de rama: git checkout [jose/manu/master] (dependiendo de a cual te quieres cambiar)
+- Para saber que ramas existen: git branch
+
 PASOS PARA AGREGAR CAMBIOS DE BRANCH A MASTER:
 - git checkout master
 - git pull origin master
