@@ -10,8 +10,8 @@ Enlaces interesantes:
  - Git: https://github.com/Kunena/Kunena-Forum/wiki/Create-a-new-branch-with-git-and-manage-branches
 
 COMANDOS BASICOS DE GIT:
-- Actualizar carpeta local (descarga los ficheros): git pull origin [jose/manu/master] (dependiendo de cual quieras pillar)
-- Actualizar carpeta remota (sube los ficheros a "la nube"): git push origin [jose/manu/master] (dependiendo de cual quieras actualizar)
+- Actualizar carpeta local (basicamente descarga los ficheros de la nube): git pull origin [jose/manu/master] (dependiendo de cual quieras pillar)
+- Actualizar carpeta remota (basicamente sube los ficheros a la nube): git push origin [jose/manu/master] (dependiendo de cual quieras actualizar)
 - Saber en que rama estas y el estado: git status
 - Cambiar de rama: git checkout [jose/manu/master] (dependiendo de a cual te quieres cambiar)
 - Para saber que ramas existen: git branch
