@@ -4,28 +4,40 @@ from importlib import reload
 
 sys.path.insert(0, r'C:\Users\manue\Documents\TFG\Holden\src')
 
-import recognizeCard, detectTableCards
+import recognizeCard, detectTableCards, pokerAnalyzer
 reload(recognizeCard)
 reload(detectTableCards)
+reload(pokerAnalyzer)
 from recognizeCard import identifyCards
 from detectTableCards import getTableCards
+from pokerAnalyzer import *
 
 class RecognizeCardsTests(unittest.TestCase):
 
-    def test_recognize_individual_cards(self):
-        ncards = [5, 4, 5, 5, 2]
-        for i in range(5):
-            im = cv2.imread('../img/tables/table'+str(i+1)+'.png')
-            card_set = getTableCards(im, None, DEBUG=False)
-            card_set = getTableCards(im, card_set, DEBUG=False)
-            self.assertEqual(len(card_set.cards), ncards[i])
+    # def test_recognize_individual_cards(self):
+    #     ncards = [5, 4, 5, 5, 2]
+    #     for i in range(5):
+    #         im = cv2.imread('../img/tables/table'+str(i+1)+'.png')
+    #         card_set = getTableCards(im, None, DEBUG=False)
+    #         card_set = getTableCards(im, card_set, DEBUG=False)
+    #         self.assertEqual(len(card_set.cards), ncards[i])
+    #
+    # # TODO - Comprobar contenido y orden
+    # def test_recognize_player_cards(self):
+    #     for i in range(4):
+    #         im = cv2.imread('../img/playerCards/cardSet'+str(i+1)+'.png')
+    #         cards = identifyCards(im, DEBUG=True)
+    #         self.assertEqual(len(cards), 2)
 
-    # TODO - Comprobar contenido y orden
-    def test_recognize_player_cards(self):
+    def test_detect_players(self):
         for i in range(4):
-            im = cv2.imread('../img/playerCards/cardSet'+str(i+1)+'.png')
-            cards = identifyCards(im, DEBUG=True)
-            self.assertEqual(len(cards), 2)
+        	im = cv2.imread('../img/tables/table'+str(i+1)+'.png')
+        	p = PokerAnalyzer()
+        	p.table.cardSet = getTableCards(im, p.table.cardSet)
+        	p.table.cardSet = getTableCards(im, p.table.cardSet)
+        	p.table.cardSet.white_tone = getWhite(im, p.table.cardSet)
+        	p.detectTable(im, DEBUG=True)
+        	#p.detectPlayers(im, DEBUG=True)
 
 
 

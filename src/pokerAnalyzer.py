@@ -62,24 +62,33 @@ class PokerAnalyzer:
 		return True
 
 	# localiza a los jugadores
-	def detectPlayers(self, image):
-		self.players = findTextNearPerimeter(image, self.table.outer_perimeter, self.table.inner_perimeter)
+	def detectPlayers(self, image, DEBUG=False):
+		self.players = findTextNearPerimeter(image, self.table.outer_perimeter, self.table.inner_perimeter, DEBUG)
 
 	# necesita las TableCards verificadas
-	def detectTable(self, image):
-		self.table.color = np.array(getTableColor(image, self.table.cardSet))
-		COLOR_RANGE = [self.table.color-self.table.color*0.55,self.table.color+self.table.color*0.55]
-		color_mask = cv2.inRange(image, COLOR_RANGE[0], COLOR_RANGE[1])
+	def detectTable(self, im, DEBUG=False):
+		self.table.color = np.array(getTableColor(im, self.table.cardSet))
+		COLOR_RANGE = [self.table.color-self.table.color*0.55,self.table.color+self.table.color*0.9]
+		color_mask = cv2.inRange(im, COLOR_RANGE[0], COLOR_RANGE[1])
+		# morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6, 6))	# 4, 8?
+		# color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, morph_kernel, iterations=1)
+		# color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, morph_kernel, iterations=1)
+		if DEBUG:
+			mock = im.copy()
+			utils.imshow(color_mask, 0.8)
 
 		_, contours, hierarchy = cv2.findContours(color_mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+		cnt = sorted(contours, key = cv2.contourArea, reverse = True)[0]
+		[x_o, y_o, w_o, h_o] = cv2.boundingRect(cnt)
 
-		for contour in contours:
-			[x, y, w, h] = cv2.boundingRect(contour)
-			if w < 400 or h < 100:
-				continue
+		self.table.outer_perimeter = [x_o, y_o, w_o, h_o]
+		[x_i, y_i, w_i, h_i] = [x_o+0.25*w_o, y_o+0.25*h_o, w_o*0.5, h_o*0.5]
+		self.table.inner_perimeter = [x_i, y_i, w_i, h_i]
 
-			self.table.outer_perimeter = [x, y, w, h]
-			self.table.inner_perimeter = [x+0.25*w, y+0.25*h, w*0.5, h*0.5]
+		if DEBUG:
+			cv2.rectangle(mock, (int(x_o), int(y_o)), (int(x_o) + int(w_o), int(y_o) + int(h_o)), (0, 255, 0), 2)
+			cv2.rectangle(mock, (int(x_i), int(y_i)), (int(x_i) + int(w_i), int(y_i) + int(h_i)), (0, 255, 0), 2)
+			utils.imshow(mock, 0.8)
 		return
 
 	def show(self, image):

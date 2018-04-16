@@ -14,6 +14,8 @@ def findTextNearPerimeter(im, outer_perimeter, inner_perimeter, DEBUG=False):
 	[x_o, y_o, w_o, h_o] = outer_perimeter
 	[x_i, y_i, w_i, h_i] = inner_perimeter
 
+	if DEBUG: mock = im.copy()
+
 	# apply grayscale
 	gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 	# morphological gradient
@@ -72,7 +74,8 @@ def findTextNearPerimeter(im, outer_perimeter, inner_perimeter, DEBUG=False):
 	if DEBUG:
 		for cnt in players:
 			[x, y, w, h] = cnt
-			cv2.rectangle(im, (x, y), (x + w, y + h), (255, 0, 255), 2)
+			cv2.rectangle(mock, (x, y), (x + w, y + h), (0, 0, 255), 2)
+		utils.imshow(mock, 0.8)
 
 	return players
 
@@ -94,23 +97,3 @@ def mergeCloseContours(contours, im_area, thresh):
 		if not merged:
 			other.append(cnt1)
 	return other
-
-# for i in range(4):
-# 	image = cv2.imread('../img/mesas/mesa'+str(i+1)+'.png')
-# 	cardSet = getTableCards(image, None)
-# 	cardSet = getTableCards(image, cardSet)
-# 	color = np.array(getTableColor(image, cardSet))
-# 	COLOR_RANGE = [color-color*0.55,color+color*0.55]
-# 	color_mask = cv2.inRange(image, COLOR_RANGE[0], COLOR_RANGE[1])
-#
-# 	_, contours, hierarchy = cv2.findContours(color_mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-#
-# 	for contour in contours:
-# 		[x, y, w, h] = cv2.boundingRect(contour)
-# 		if w < 400 or h < 100:
-# 			continue
-#
-# 		br = [x, y, w, h]
-# 		[x_i, y_i, w_i, h_i] = [round(x+0.25*w), round(y+0.25*h), round(w*0.5), round(h*0.5)]		#inner perimeter
-#
-# 	findTextNearPerimeter(image, br, [x_i, y_i, w_i, h_i])

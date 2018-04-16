@@ -121,7 +121,7 @@ def getWhite(image, cardSet):
 	color = np.median(card[card > COLOR_RANGE[0]])
 	return color
 
-def getTableColor(image, cardSet):
+def getTableColor(image, cardSet, DEBUG=False):
 	COLOR_RANGE = [150, 255]	# Color de una carta
 	x1 = cardSet.x[0]-cardSet.width_mode
 	y1 = cardSet.y-cardSet.width_mode
@@ -129,6 +129,7 @@ def getTableColor(image, cardSet):
 	y2 = cardSet.y
 
 	table_sample = image[y1:y2, x1:x2, :]
+	if DEBUG: utils.imshow(table_sample, 2)
 	b = int(stats.mode(table_sample[:,:,0], axis=None)[0])
 	g = int(stats.mode(table_sample[:,:,1], axis=None)[0])
 	r = int(stats.mode(table_sample[:,:,2], axis=None)[0])
