@@ -10,7 +10,7 @@ reload(utils)
 
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
 
-def findTextNearPerimeter(im, outer_perimeter, inner_perimeter):
+def findTextNearPerimeter(im, outer_perimeter, inner_perimeter, DEBUG=False):
 	[x_o, y_o, w_o, h_o] = outer_perimeter
 	[x_i, y_i, w_i, h_i] = inner_perimeter
 
@@ -59,15 +59,21 @@ def findTextNearPerimeter(im, outer_perimeter, inner_perimeter):
 			continue
 
 		# Filtro de si tienen texto
-		box = im[y-10:y+h+5, x-10:x+w+5,:]
-		string = pytesseract.image_to_string(box)
-		if not string:
-			continue
+		# box = im[y-10:y+h+5, x-10:x+w+5,:]
+		# string = pytesseract.image_to_string(box)
+		# if not string:
+		# 	continue
 
 		#cv2.rectangle(im, (x, y), (x + w, y + h), (255, 0, 255), 2)
 		players.append([x, y, w, h])
 
-	players = mergeCloseContours(players, im.shape[0]*im.shape[1], 9000)
+	# players = mergeCloseContours(players, im.shape[0]*im.shape[1], 9000)
+
+	if DEBUG:
+		for cnt in players:
+			[x, y, w, h] = cnt
+			cv2.rectangle(im, (x, y), (x + w, y + h), (255, 0, 255), 2)
+
 	return players
 
 # cnt = [x, y, w, h]
@@ -88,43 +94,6 @@ def mergeCloseContours(contours, im_area, thresh):
 		if not merged:
 			other.append(cnt1)
 	return other
-
-def findPatternsNearPerimeter(im, outer_perimeter, inner_perimeter):
-	[x_o, y_o, w_o, h_o] = outer_perimeter
-	[x_i, y_i, w_i, h_i] = inner_perimeter
-
-	img_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-	x1,y1,x2,y2 = utils.select_window()
-	template = cv2.cvtColor(utils.cropped_screenshot(x1,y1,x2,y2), cv2.COLOR_BGR2GRAY)
-	utils.imshow(template, 1)
-	w, h = template.shape[::-1]
-	res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
-	threshold = 0.35
-	loc = np.where(res >= threshold)
-	for pt in zip(*loc[::-1]):
-		x = pt[0]
-		y = pt[1]
-
-		x_left_o = max(x_o, x)
-		y_top_o = max(y_o, y)
-		x_right_o = min(x_o+w_o, x+w)
-		y_bottom_o = min(y_o+h_o, y+h)
-
-		x_left_i = max(x_i, x)
-		y_top_i = max(y_i, y)
-		x_right_i = min(x_i+w_i, x+w)
-		y_bottom_i = min(y_i+h_i, y+h)
-
-		if 1.1*x_right_o < x_left_o or 1.1*y_bottom_o < y_top_o:
-			continue
-
-		if x_right_i > x_left_i and y_bottom_i > y_top_i:
-			continue
-
-		cv2.rectangle(im, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
-
-	utils.imshow(im, 0.7)
-
 
 # for i in range(4):
 # 	image = cv2.imread('../img/mesas/mesa'+str(i+1)+'.png')
