@@ -70,9 +70,6 @@ class PokerAnalyzer:
 		self.table.color = np.array(getTableColor(im, self.table.cardSet))
 		COLOR_RANGE = [self.table.color-self.table.color*0.55,self.table.color+self.table.color*0.9]
 		color_mask = cv2.inRange(im, COLOR_RANGE[0], COLOR_RANGE[1])
-		# morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6, 6))	# 4, 8?
-		# color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, morph_kernel, iterations=1)
-		# color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, morph_kernel, iterations=1)
 		if DEBUG:
 			mock = im.copy()
 			utils.imshow(color_mask, 0.8)
@@ -82,7 +79,7 @@ class PokerAnalyzer:
 		[x_o, y_o, w_o, h_o] = cv2.boundingRect(cnt)
 
 		self.table.outer_perimeter = [x_o, y_o, w_o, h_o]
-		[x_i, y_i, w_i, h_i] = [x_o+0.25*w_o, y_o+0.25*h_o, w_o*0.5, h_o*0.5]
+		[x_i, y_i, w_i, h_i] = [x_o+0.15*w_o, y_o+0.25*h_o, w_o*0.7, h_o*0.5]
 		self.table.inner_perimeter = [x_i, y_i, w_i, h_i]
 
 		if DEBUG:

@@ -10,6 +10,7 @@ reload(utils)
 
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
 
+# TODO - hacer robusto a cambios de resolucion
 def findTextNearPerimeter(im, outer_perimeter, inner_perimeter, DEBUG=False):
 	[x_o, y_o, w_o, h_o] = outer_perimeter
 	[x_i, y_i, w_i, h_i] = inner_perimeter
@@ -21,18 +22,15 @@ def findTextNearPerimeter(im, outer_perimeter, inner_perimeter, DEBUG=False):
 	# morphological gradient
 	morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (4, 4))	# MUY INTERESANTE
 	grad = cv2.morphologyEx(gray, cv2.MORPH_GRADIENT, morph_kernel)
-	#utils.imshow(grad, 0.7)
-	# binarize
-	#_, bw = threshold(src=grad, thresh=0, maxval=255, type=cv2.THRESH_TOZERO+cv2.THRESH_OTSU)
 	_, bw = cv2.threshold(src=grad, thresh=0, maxval=255, type=cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-	morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6, 6))	# 4, 8?
+	morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6, 6))
 	# connect horizontally oriented regions
 	connected = cv2.morphologyEx(bw, cv2.MORPH_OPEN, morph_kernel, iterations=1)
 	morph_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (6, 3))
 	connected = cv2.morphologyEx(connected, cv2.MORPH_CLOSE, morph_kernel, iterations=6)
-	mask = np.zeros(bw.shape, np.uint8)
 	# find contours
-	im2, contours, hierarchy = cv2.findContours(connected, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+	_, contours, hierarchy = cv2.findContours(connected, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+	contours = sorted(contours, key = cv2.contourArea, reverse = True)[:35]
 	# filter contours
 	players = []
 	while contours:
@@ -50,7 +48,7 @@ def findTextNearPerimeter(im, outer_perimeter, inner_perimeter, DEBUG=False):
 		y_bottom_i = min(y_i+h_i, y+h)
 
 		# Filtro de tamaño
-		if w < 5 or h < 5:
+		if w < 20 or h < 10:
 			continue
 
 		# Filtro de cercania al perimetro
@@ -61,15 +59,15 @@ def findTextNearPerimeter(im, outer_perimeter, inner_perimeter, DEBUG=False):
 			continue
 
 		# Filtro de si tienen texto
-		# box = im[y-10:y+h+5, x-10:x+w+5,:]
-		# string = pytesseract.image_to_string(box)
-		# if not string:
-		# 	continue
+		box = cv2.resize(im[y-5:y+h+5, x-15:x+w,:], (0,0), fx=3, fy=3)
+		string = pytesseract.image_to_string(box)
+		if not string:
+			continue
 
 		#cv2.rectangle(im, (x, y), (x + w, y + h), (255, 0, 255), 2)
-		players.append([x, y, w, h])
+		players.append([x-6, y, w, h])
 
-	# players = mergeCloseContours(players, im.shape[0]*im.shape[1], 9000)
+	players = mergeCloseContours(players, im.shape[0]*im.shape[1], 9500)
 
 	if DEBUG:
 		for cnt in players:

@@ -36,8 +36,8 @@ class RecognizeCardsTests(unittest.TestCase):
         	p.table.cardSet = getTableCards(im, p.table.cardSet)
         	p.table.cardSet = getTableCards(im, p.table.cardSet)
         	p.table.cardSet.white_tone = getWhite(im, p.table.cardSet)
-        	p.detectTable(im, DEBUG=True)
-        	#p.detectPlayers(im, DEBUG=True)
+        	p.detectTable(im, DEBUG=False)
+        	p.detectPlayers(im, DEBUG=True)
 
 
 
