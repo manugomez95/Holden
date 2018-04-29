@@ -5,6 +5,7 @@ from enum import Enum
 from abc import ABC, abstractmethod
 import numpy as np
 from scipy import stats
+import cv2
 
 class Suits(Enum):
 	HEARTS = "♥"
@@ -39,6 +40,10 @@ class Card:
 		width = self.vertexes[1][0] - self.vertexes[0][0]
 		return [height, width]
 
+	def draw(self, im):
+		cv2.rectangle(im, tuple(self.vertexes[0]), tuple(self.vertexes[1]), (0, 0, 255), 2)
+		return im
+
 class CardSet(ABC):
 	name = None
 	cards = []
@@ -51,7 +56,7 @@ class CardSet(ABC):
 	# Incluir proximamente, si no está verificado: "Calibrating..."
 	def __str__(self):
 		if self.verified:
-			return self.name + ': [' + ', '.join(str(c) for c in self.cards) + ']'
+			return self.name + ': [' + ', '.join(str(c) for c in self.cards) + ']\n'
 		else:
 			return self.name + ': Verifying...'
 
@@ -64,11 +69,17 @@ class CardSet(ABC):
 		self.cards.sort(key=lambda x: x.vertexes[0][0])
 		return self
 
+	def draw(self, im):
+		for i, card in enumerate(self.cards):
+			card.draw(im)
+		return im
+
 class PlayerCardSet(CardSet):
 	name = "Player Cards"
+	frame = None
 
 	def verify(self):
-		pass
+		return True
 
 class TableCardSet(CardSet):
 	name = "Table Cards"
@@ -83,21 +94,27 @@ class TableCardSet(CardSet):
 	# TODO - hacerlo más listo, descartar cartas que no cumplan los verify (pero que no bloqueen)
 	def verify(self):
 		if len(self.cards) >= 3:
-			heights = [x.size()[0] for x in self.cards]
-			widths = [x.size()[1] for x in self.cards]
-			distances = [self.cards[i+1].vertexes[0][0]-self.cards[i].vertexes[0][0] for i in range(len(self.cards)-1)]
+			heights = np.array([c.size()[0] for c in self.cards])
+			widths = np.array([c.size()[1] for c in self.cards])
+			# Elimino los valores raros
+			index = [i for i, x in enumerate(abs(heights - int(stats.mode(heights)[0])) <= 1 * np.std(heights)) if x]
+			self.cards = [self.cards[i] for i in index]
 
-			self.height_mode = int(stats.mode(heights)[0])
-			self.width_mode = int(stats.mode(widths)[0])
-			self.distance_mode = int(stats.mode(distances)[0])
+			if len(self.cards) >= 3:
+				heights = heights[index]
+				widths = widths[index]
+				distances = np.array([self.cards[i+1].vertexes[0][0]-self.cards[i].vertexes[0][0] for i in range(len(self.cards)-1)])
+				self.height_mode = int(stats.mode(heights)[0])
+				self.width_mode = int(stats.mode(widths)[0])
+				self.distance_mode = int(stats.mode(distances)[0])
 
-			self.x = [c.vertexes[0][0] for c in self.cards]
-			self.y = int(stats.mode([c.vertexes[0][1] for c in self.cards])[0])
+				self.x = [c.vertexes[0][0] for c in self.cards]
+				self.y = int(stats.mode([c.vertexes[0][1] for c in self.cards])[0])
 
-			height_verified = np.std(heights) < 4
-			width_verified = np.std(widths) < 4
-			axis_verified = np.std(self.y) < 4
-			return all([height_verified, width_verified, axis_verified])
+				height_verified = np.std(heights) < 4
+				width_verified = np.std(widths) < 4
+				axis_verified = np.std(self.y) < 4
+				return all([height_verified, width_verified, axis_verified])
 		return False
 
 	def add(self, card):

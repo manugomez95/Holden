@@ -10,10 +10,24 @@ import utils, card, recognizeCard
 reload(utils)
 reload(card)
 reload(recognizeCard)
-from card import Card
+from card import Card, PlayerCardSet
 from recognizeCard import identifyCards
 
-def detectPlayerCards(image, white, player_loc):
+# para cuando las cartas están pegadas
+def getPlayerCards(image, cardSet):
+	cardSet.cards = []
+	[x, y, w, h] = cardSet.frame
+	card_im = image[y:y+h, x:x+w]
+	ret = identifyCards(card_im)	# lista de tuplas valor, palo
+	if len(ret) >= 2:
+		value, suit = ret[0]
+		cardSet.add(Card(value, suit, [[x, y],[int(x+w/2.4), y+h]]))
+		value, suit = ret[1]
+		cardSet.add(Card(value, suit, [[int(x+w/2.4), y],[x+w, y+h]]))
+	return cardSet
+
+
+def detectPlayerCards(image, white, player_loc, DEBUG=False):
 	ONE_RATIO_RANGE = [1.3, 1.7]
 	TWO_RATIO_RANGE = [0.65, 0.85]
 	WHITE_RANGE = [white-white*0.15,white+white*0.15]
@@ -29,8 +43,10 @@ def detectPlayerCards(image, white, player_loc):
 	ret3,th3 = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 	#utils.imshow(th3, 1)
 
+	if DEBUG: utils.imshow(th3, 1)
+
 	_, contours, hierarchy = cv2.findContours(th3,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-	cards = []
+	cards = PlayerCardSet([])
 	for contour in contours:
 		# get rectangle bounding contour
 		[x, y, w, h] = cv2.boundingRect(contour)
@@ -54,14 +70,15 @@ def detectPlayerCards(image, white, player_loc):
 		# meter más filtros, de color, de cercania al input, etc...
 		card_im = image[y:y+h, x:x+w]
 		ret = identifyCards(card_im)	# lista de tuplas valor, palo
-		if ret and ratio_one:
+		if ret and ratio_one:	# de momento no me he encontrado ningún caso # Restriccion - cartas pegadas
 			value, suit = ret[0]
-			cards.append(Card(value, suit, [[x, y],[x+w, y+h]]))
+			cards.add(Card(value, suit, [[x, y],[x+w, y+h]]))
 		elif ret and ratio_two:
 			value, suit = ret[0]
-			cards.append(Card(value, suit, [[x, y],[int(x+w/2.4), y+h]]))
+			cards.add(Card(value, suit, [[x, y],[int(x+w/2.4), y+h]]))
 			value, suit = ret[1]
-			cards.append(Card(value, suit, [[int(x+w/2.4), y],[x+w, y+h]]))
+			cards.add(Card(value, suit, [[int(x+w/2.4), y],[x+w, y+h]]))
+			cards.frame = [x, y, w, h]
 		else:
 			continue
 
@@ -72,11 +89,3 @@ def detectPlayerCards(image, white, player_loc):
 	# print(', '.join(str(c) for c in cards))
 	# utils.imshow(image, 0.7)
 	return cards
-
-# for i in range(4):
-# 	image = cv2.imread('../img/mesas/mesa'+str(i+1)+'.png')
-# 	cardSet = getTableCards(image, None)
-# 	cardSet = getTableCards(image, cardSet)
-# 	white = getWhite(image, cardSet)
-# 	player_loc = utils.getXY(image)
-# 	detectPlayerCards(image, white, player_loc)

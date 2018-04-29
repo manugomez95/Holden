@@ -17,6 +17,7 @@ def cropped_screenshot(x1,y1,x2,y2):
 
 def select_window():
 	mouse = pymouse.PyMouse()
+	print("Change resolution to 100%")
 	input("Place the cursor on the upper left corner. Press Enter to continue...")
 	x1, y1 = mouse.position()
 	print("Coordinates: " + str([x1,y1]))
@@ -32,7 +33,7 @@ def select_window():
 
 	return x1,y1,x2,y2
 
-def imshow(image, percentage):
+def imshow(image, percentage=1):
 	cv2.imshow("im", cv2.resize(image, (0,0), fx=percentage, fy=percentage))
 	cv2.waitKey()
 	cv2.destroyAllWindows()

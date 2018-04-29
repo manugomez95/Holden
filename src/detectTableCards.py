@@ -34,9 +34,10 @@ def locateTableCards(image, DEBUG=False):
 	# aplicamos máscara de luminosidad
 	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	color_mask = cv2.inRange(gray, COLOR_RANGE[0], COLOR_RANGE[1])
+	if DEBUG: utils.imshow(color_mask, 0.7)
 
 	# búsqueda de contornos
-	_, cnts, _ = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+	_, cnts, _ = cv2.findContours(color_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	# cnts guarda los 20 contornos con el mayor area
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:20]
 
@@ -58,15 +59,15 @@ def locateTableCards(image, DEBUG=False):
 			area_verified = AREA_RANGE[0]<area<AREA_RANGE[1]
 			if all([ratio_verified, area_verified]):
 				cards.append(Card(None, None,[(x,y), (x+w,y+h)]))
-				if DEBUG:
-					cv2.rectangle(mock, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
+	ret = TableCardSet(cards)
 	if DEBUG:
+		ret.draw(mock)
 		utils.imshow(mock, 0.70)
 
-	return TableCardSet(cards)
+	return ret
 
-def look(direction, image, cardSet, x1):
+def look(direction, image, cardSet, x1, DEBUG=False, VERBOSE=False):
 	x2 = x1+cardSet.width_mode
 	if direction == -1:
 		new_x1 = x1 - cardSet.distance_mode
@@ -77,47 +78,58 @@ def look(direction, image, cardSet, x1):
 	else:
 		raise Exception("detectTableCards/look argument error")
 
+	if VERBOSE: print("Miro: " + str(direction))
+
 	new_x2 = new_x1+cardSet.width_mode
 	y1 = cardSet.y
 	y2 = y1+cardSet.height_mode
 
 	card_im = image[y1-10:y2+10, new_x1-10:new_x2+10]
-
-	ret = identifyCards(card_im)	# lista de tuplas valor, palo
+	if DEBUG: utils.imshow(card_im, 2)
+	ret = identifyCards(card_im, DEBUG)	# lista de tuplas valor, palo
 	if ret:
 		value, suit = ret[0]
+		if VERBOSE:
+			print("\tValor: " + str(value))
+			print("\tPalo: " + str(suit))
 		card = Card(value, suit, [[new_x1, y1],[new_x2, y2]])
 		if direction == 0:
 			return cardSet.add(card)
 		else:
-			return look(direction, image, cardSet.add(card), new_x1)
+			return look(direction, image, cardSet.add(card), new_x1, DEBUG)
 	else:
 		return cardSet
 
-def getTableCards(image, cardSet, DEBUG=False):
+def getTableCards(image, cardSet, DEBUG=False, VERBOSE=False):
 	if cardSet is None or not cardSet.verified:
-		if DEBUG: print("Cards not verified: Locating...")
+		if VERBOSE: print("Cards not verified: Locating...")
 		return locateTableCards(image, DEBUG)	# ¿QUE DEVUELVA TAMBIEN UN ESTADO?	TODO
 	else:
-		if DEBUG: print("Cards verified: Completing and updating value")
+		if VERBOSE: print("Cards verified: Completing and updating value")
 		# resetear cartas
 		new_cardSet = copy.deepcopy(cardSet)
 		new_cardSet.cards = []
-		new_cardSet = look(0, image, new_cardSet, cardSet.x[0])		# ¿La primera carta que detectaste antes, sigue ahí?
-		new_cardSet = look(-1, image, new_cardSet, cardSet.x[0])	# Mira a tu izquierda
-		new_cardSet = look(1, image, new_cardSet, cardSet.x[0])		# Y a tu derecha
+		new_cardSet = look(0, image, new_cardSet, cardSet.x[0], DEBUG=False)		# ¿La primera carta que detectaste antes, sigue ahí?
+		new_cardSet = look(-1, image, new_cardSet, cardSet.x[0], DEBUG=False)	# Mira a tu izquierda
+		new_cardSet = look(1, image, new_cardSet, cardSet.x[0], DEBUG=False)		# Y a tu derecha
+		if VERBOSE: print("Updated set: " + str(new_cardSet))
+		if DEBUG:
+			mock = image.copy()
+			new_cardSet.draw(mock)
+			utils.imshow(mock, 0.7)
 		return new_cardSet
 
-def getWhite(image, cardSet):
+def getWhite(image, cardSet, DEBUG=False):
 	COLOR_RANGE = [150, 255]	# Color de una carta
 	x1 = cardSet.x[0]
 	y1 = cardSet.y
-	x2 = x2 = x1+cardSet.width_mode
+	x2 = x1+cardSet.width_mode
 	y2 = y1+cardSet.height_mode
 	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	color_mask = cv2.inRange(gray, COLOR_RANGE[0], COLOR_RANGE[1])
 	masked_im = cv2.bitwise_and(gray, gray, mask=color_mask)
 	card = masked_im[y1:y2, x1:x2]
+	if DEBUG: utils.imshow(card, 3)
 	color = np.median(card[card > COLOR_RANGE[0]])
 	return color
 
