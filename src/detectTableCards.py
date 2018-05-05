@@ -117,6 +117,7 @@ def getTableCards(image, cardSet, DEBUG=False, VERBOSE=False):
 			mock = image.copy()
 			new_cardSet.draw(mock)
 			utils.imshow(mock, 0.7)
+			print(str(new_cardSet))
 		return new_cardSet
 
 def getWhite(image, cardSet, DEBUG=False):

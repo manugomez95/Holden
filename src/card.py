@@ -7,6 +7,7 @@ import numpy as np
 from scipy import stats
 import cv2
 
+# TODO - cambiar a suit
 class Suits(Enum):
 	HEARTS = "♥"
 	DIAMONDS = "♦"
@@ -19,7 +20,7 @@ class Suits(Enum):
 class Card:
 	value = None
 	suit = None
-	vertexes = []	# 2 o 4? 2 de momento
+	vertexes = []	# vertices: [(izq sup),(der inf)]
 
 	def __init__(self, value, suit, vertexes):
 		self.value = value
@@ -53,7 +54,6 @@ class CardSet(ABC):
 		self.cards = cards
 		self.verified = self.verify()
 
-	# Incluir proximamente, si no está verificado: "Calibrating..."
 	def __str__(self):
 		if self.verified:
 			return self.name + ': [' + ', '.join(str(c) for c in self.cards) + ']\n'
@@ -83,9 +83,9 @@ class PlayerCardSet(CardSet):
 
 class TableCardSet(CardSet):
 	name = "Table Cards"
-	white_tone = None	# Tengo que sacar esto
+	white_tone = None
 	height_mode = None
-	weight_mode = None
+	width_mode = None	# TODO - cuidao
 	distance_mode = None
 	x = []
 	y = None

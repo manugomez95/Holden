@@ -12,10 +12,8 @@ from detectPlayerCards import *
 
 class PokerAnalyzer:
 	status = None
-	# PLAYERS
 	players = None	# Array de player.Player
 	playerCards = None
-	# TABLE		# crear objeto table?
 	table = None
 
 	def __init__(self):
@@ -30,12 +28,11 @@ class PokerAnalyzer:
 	# actualiza el estado de los elementos ya localizados: computacionalmente ligero
 	def refresh(self, screen):
 		self.table.cardSet = getTableCards(screen, self.table.cardSet)	# TODO - Devuelve también un estado?
-		self.playerCards = getPlayerCards(screen, self.playerCards) # TODO - Hacer o no dependiendo del flag
+		#self.playerCards = getPlayerCards(screen, self.playerCards) # TODO - Hacer o no dependiendo del flag
 
 	# localiza todos los elementos: computacionalmente pesado
-	def initialScan(self, screen):	# Se puede mejorar calculando resultados en paralelo.
-		players_flag = False	# TODO - meterlas en variables de contexto?
-		player_cards_flag = True
+	def initialScan(self, screen, VERBOSE=False):	# Se puede mejorar calculando resultados en paralelo.
+		player_cards_flag = False
 		if not self.table.cardSet.verified:	# tenemos las cartas de la mesa?
 			self.table.cardSet = getTableCards(screen, self.table.cardSet)
 		else:
@@ -48,11 +45,11 @@ class PokerAnalyzer:
 
 			if self.table.outer_perimeter is None:	# tenemos la mesa?
 				self.detectTable(screen)
-			elif self.players is None and players_flag: # vale, tenemos la mesa, tenemos jugadores? No
+			elif self.players is None: # vale, tenemos la mesa, tenemos jugadores? No
 				self.detectPlayers(screen)
 
 		# return False # cuando acabe
-		self.updateStatus(players_flag, player_cards_flag)
+		self.updateStatus(player_cards_flag)
 		if self.status == "Initial scan completed.":
 			return False
 		else:
@@ -100,19 +97,15 @@ class PokerAnalyzer:
 
 		if self.playerCards:
 			self.playerCards.draw(image)
-		# 	for card in self.playerCards:
-		# 		card.draw(image)
-				# cv2.rectangle(image, tuple(card.vertexes[0]), tuple(card.vertexes[1]), (255, 150, 20), 2)
 
 		utils.imshow(image, 0.8)
 		#cv2.imwrite("../mesa.png", image)
 
-	def updateStatus(self, players_flag, player_cards_flag):
+	def updateStatus(self, player_cards_flag):
 		conditions = []
 		conditions.append(self.table.cardSet.white_tone)
 		conditions.append(self.table.outer_perimeter)
-		if players_flag:
-			conditions.append(self.players)
+		conditions.append(self.players)
 		if player_cards_flag:
 			conditions.append(self.playerCards)
 		if all(conditions):

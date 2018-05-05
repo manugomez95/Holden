@@ -12,11 +12,9 @@ import pytesseract
 from card import *
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
 
-alphabet = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
-
 # input:	carta, imagen de la carta completa
 # output:	lista de tuplas (valor, palo)
-# TODO - dejar mas bonito el codigo y eliminar falsos positivos
+
 # TODO - reconocer bien los 10s
 def identifyCards(image, DEBUG=False):
 	image_area = image.shape[0]*image.shape[1]
@@ -30,7 +28,7 @@ def identifyCards(image, DEBUG=False):
 
 	_, contours, hierarchy = cv2.findContours(color_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	cards = []
-	min_w = image_area/1300
+	min_w = image_area/1600
 	min_h = image_area/800
 	while contours:
 		contour1 = contours.pop()
@@ -73,12 +71,7 @@ def obtain_value(value_im):
 	global alphabet
 	_, value_im = cv2.threshold(value_im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU);
 	value_im = cv2.GaussianBlur(value_im,(11,11),0)
-	value = pytesseract.image_to_string(value_im, config="--psm 10")
-	# chapuza - TODO - corregirlo
-	if value == 'I' or value == '0':
-		value = 10
-	elif not value in alphabet:
-		value = 'Q'
+	value = pytesseract.image_to_string(value_im, config="--psm 10 -c tessedit_char_whitelist=A234567890JQK")
 	return value
 
 # input:	carta, imagen de la carta completa
