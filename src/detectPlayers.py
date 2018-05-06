@@ -1,3 +1,6 @@
+#!python3.6
+#coding: utf8
+
 import cv2
 import numpy as np
 from importlib import reload
@@ -57,28 +60,12 @@ def findTextNearPerimeter(im, outer_perimeter, inner_perimeter, DEBUG=False):
 	players =  [contours[i] for i in index]
 	players = mergeCloseContours(players, im.shape[0]*im.shape[1], 9500)
 
-	# Filtro de si tienen texto
-	# l = len(players)
-	# while players and l > 0:
-	# 	l -= 1
-	# 	[x, y, w, h] = players.pop()
-	# 	box = im[y-5:y+h+5, x-15:x+w,:]
-	# 	box = cv2.resize(box, (0,0), fx=2.5, fy=2.5)
-	# 	string = pytesseract.image_to_string(box)
-	# 	print("string")
-	# 	if not string:
-	# 		print("\tnope")
-	# 		utils.imshow(box)
-	# 		continue
-	# 	utils.imshow(box)
-	# 	players.insert(0, [x-15, y-5, w, h+5])
-
 	if DEBUG:
 		for cnt in players:
 			[x, y, w, h] = cnt
 			cv2.rectangle(mock, (x-10, y-5), (x + w, y + h), (255, 100, 70), 2)
 		utils.imshow(mock, 0.8)
-		
+
 	return players
 
 # cnt = [x, y, w, h]

@@ -62,7 +62,7 @@ def detectPlayerCards(image, white, player_loc, DEBUG=False):
 		if not ratio_one and not ratio_two:
 			continue
 
-		max_near = 6000
+		max_near = 3000
 		near = image.shape[0]*image.shape[1]/distance.euclidean(player_loc, [x, y])
 		if near < max_near:
 			continue
@@ -82,10 +82,4 @@ def detectPlayerCards(image, white, player_loc, DEBUG=False):
 		else:
 			continue
 
-		# draw rectangle around contour on original image
-		# cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 255), 2)
-
-	# write original image with added contours to disk
-	# print(', '.join(str(c) for c in cards))
-	# utils.imshow(image, 0.7)
 	return cards

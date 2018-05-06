@@ -1,3 +1,6 @@
+#!python3.6
+#coding: utf8
+
 import time, os
 import utils, detectTableCards, pokerAnalyzer
 from importlib import reload

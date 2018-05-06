@@ -1,3 +1,6 @@
+#!python3.6
+#coding: utf8
+
 import numpy as np
 import cv2
 from importlib import reload
@@ -11,13 +14,11 @@ import copy
 from scipy import stats
 
 class Table:
-	cardSet = None
-	color = None
-	inner_perimeter = None
-	outer_perimeter = None
-
 	def __init__(self):
 		self.cardSet = TableCardSet([])
+		self.color = None
+		self.inner_perimeter = None
+		self.outer_perimeter = None
 
 # Devuelve un TableCardSet
 def locateTableCards(image, DEBUG=False):
@@ -103,7 +104,7 @@ def look(direction, image, cardSet, x1, DEBUG=False, VERBOSE=False):
 def getTableCards(image, cardSet, DEBUG=False, VERBOSE=False):
 	if cardSet is None or not cardSet.verified:
 		if VERBOSE: print("Cards not verified: Locating...")
-		return locateTableCards(image, DEBUG)	# ¿QUE DEVUELVA TAMBIEN UN ESTADO?	TODO
+		return locateTableCards(image, DEBUG)
 	else:
 		if VERBOSE: print("Cards verified: Completing and updating value")
 		# resetear cartas

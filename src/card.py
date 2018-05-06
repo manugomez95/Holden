@@ -7,8 +7,7 @@ import numpy as np
 from scipy import stats
 import cv2
 
-# TODO - cambiar a suit
-class Suits(Enum):
+class Suit(Enum):
 	HEARTS = "♥"
 	DIAMONDS = "♦"
 	CLUBS = "♣"
@@ -85,17 +84,17 @@ class TableCardSet(CardSet):
 	name = "Table Cards"
 	white_tone = None
 	height_mode = None
-	width_mode = None	# TODO - cuidao
+	width_mode = None
 	distance_mode = None
 	x = []
 	y = None
 
-	# verifica que se han encontrado las cartas y produce datos utiles para las fases siguientes
-	# TODO - hacerlo más listo, descartar cartas que no cumplan los verify (pero que no bloqueen)
+	# verifica que se han localizado las cartas
 	def verify(self):
 		if len(self.cards) >= 3:
 			heights = np.array([c.size()[0] for c in self.cards])
 			widths = np.array([c.size()[1] for c in self.cards])
+
 			# Elimino los valores raros
 			index = [i for i, x in enumerate(abs(heights - int(stats.mode(heights)[0])) <= 1 * np.std(heights)) if x]
 			self.cards = [self.cards[i] for i in index]

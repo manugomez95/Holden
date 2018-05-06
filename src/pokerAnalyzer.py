@@ -1,6 +1,10 @@
+#!python3.6
+#coding: utf8
+
 from player import Player
 from importlib import reload
-import card, detectTableCards, detectPlayers, detectPlayerCards
+import card, detectTableCards, detectPlayers, detectPlayerCards, utils
+reload(utils)
 reload(card)
 reload(detectTableCards)
 reload(detectPlayers)
@@ -11,36 +15,35 @@ from detectPlayers import *
 from detectPlayerCards import *
 
 class PokerAnalyzer:
-	status = None
-	players = None	# Array de player.Player
-	playerCards = None
-	table = None
-
 	def __init__(self):
-		self.status = "Initial scan in process..."
 		self.players = None
 		self.playerCards = None
 		self.table = Table()
+		self.context = utils.Context()
 
 	def __str__(self):
 		return str(self.table.cardSet) + str(self.playerCards)
 
-	# actualiza el estado de los elementos ya localizados: computacionalmente ligero
+	# Reconocimiento.
+	# TODO - actualizar estado de jugadores
 	def refresh(self, screen):
-		self.table.cardSet = getTableCards(screen, self.table.cardSet)	# TODO - Devuelve también un estado?
-		#self.playerCards = getPlayerCards(screen, self.playerCards) # TODO - Hacer o no dependiendo del flag
+		self.context.t += 1
+		self.table.cardSet = getTableCards(screen, self.table.cardSet)
+		if self.context.player_cards_flag:
+			self.playerCards = getPlayerCards(screen, self.playerCards)
 
-	# localiza todos los elementos: computacionalmente pesado
+	# Detección
 	def initialScan(self, screen, VERBOSE=False):	# Se puede mejorar calculando resultados en paralelo.
-		player_cards_flag = False
+		self.context.t += 1
 		if not self.table.cardSet.verified:	# tenemos las cartas de la mesa?
 			self.table.cardSet = getTableCards(screen, self.table.cardSet)
 		else:
 			#self.table.cardSet = getTableCards(screen, self.table.cardSet)	# TODO - queda bien en la foto, pero no hace falta
 			if self.table.cardSet.white_tone is None:	# vale, tenemos las cartas de la mesa... tenemos el blanco?
 				self.table.cardSet.white_tone = getWhite(screen, self.table.cardSet)
-			elif self.playerCards is None and player_cards_flag:
+			elif self.playerCards is None and self.context.player_cards_flag:
 				player_loc = utils.getxy()
+				# TODO - pasarle como argumento a estas funciones self, para tener el contexto
 				self.playerCards = detectPlayerCards(screen, self.table.cardSet.white_tone, player_loc)
 
 			if self.table.outer_perimeter is None:	# tenemos la mesa?
@@ -49,8 +52,8 @@ class PokerAnalyzer:
 				self.detectPlayers(screen)
 
 		# return False # cuando acabe
-		self.updateStatus(player_cards_flag)
-		if self.status == "Initial scan completed.":
+		self.updateStatus(self.context.player_cards_flag)
+		if self.context.status == "Initial scan completed.":
 			return False
 		else:
 			return True
@@ -109,4 +112,4 @@ class PokerAnalyzer:
 		if player_cards_flag:
 			conditions.append(self.playerCards)
 		if all(conditions):
-			self.status = "Initial scan completed."
+			self.context.status = "Initial scan completed."

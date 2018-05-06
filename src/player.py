@@ -1,3 +1,6 @@
+#!python3.6
+#coding: utf8
+
 from enum import Enum
 class PlayerState(Enum):
 	UNKNOWN = 1

@@ -24,19 +24,35 @@ class TestCards(unittest.TestCase):
             card_set = getTableCards(im, card_set, DEBUG)
             self.assertEqual(len(card_set.cards), ncards[i])
 
-    def test_recognize_player_cards(self):
+    def test_overlapped_cards(self):
         print("")
         for i in range(4):
             im = cv2.imread('../img/playerCards/cardSet'+str(i+1)+'.png')
             cards = identifyCards(im, DEBUG)
             self.assertEqual(len(cards), 2)
 
+    def test_player_cards(self):
+        print("")
+        im = cv2.imread('../img/tables/table5.png')
+        p = PokerAnalyzer()
+        p.context.player_cards_flag = True
+        while p.initialScan(im):
+            pass
+        if DEBUG: p.show(im)
+
+        im = cv2.imread('../img/tables/table7.png')
+        p = PokerAnalyzer()
+        p.context.player_cards_flag = True
+        while p.initialScan(im):
+            pass
+        if DEBUG: p.show(im)
+
 class TestPlayers(unittest.TestCase):
     def test_detect_players(self):
+        print("")
         for i in range(3):
             im = cv2.imread('../img/tables/table'+str(i+1)+'.png')
             p = PokerAnalyzer()
-            p.table.cardSet = getTableCards(im, p.table.cardSet)
             p.table.cardSet = getTableCards(im, p.table.cardSet)
             p.table.cardSet.white_tone = getWhite(im, p.table.cardSet)
             p.detectTable(im)
@@ -44,6 +60,7 @@ class TestPlayers(unittest.TestCase):
 
 class TestAll(unittest.TestCase):
     def test_initial_scan(self):
+        print("")
         for i in range(8):
             select = False
             if select:

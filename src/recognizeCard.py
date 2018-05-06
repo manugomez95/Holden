@@ -80,12 +80,12 @@ def obtain_suit(suit_im, contour):
 	peri = cv2.arcLength(contour, True)
 	approx = cv2.approxPolyDP(contour, 0.025 * peri, True)
 	if len(approx) == 4:
-		return Suits.DIAMONDS
+		return Suit.DIAMONDS
 	elif 5 <= len(approx) <= 8 and np.mean(suit_im[:,:,2], axis=None) > 170:
-		return Suits.HEARTS
+		return Suit.HEARTS
 	elif len(approx) <= 10 and np.mean(suit_im[:,:,2], axis=None) < 170:
-			return Suits.SPADES
+			return Suit.SPADES
 	elif np.mean(suit_im[:,:,2], axis=None) < 170:
-		return Suits.CLUBS
+		return Suit.CLUBS
 	else:
 		return None
