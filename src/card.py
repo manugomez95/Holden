@@ -112,7 +112,7 @@ class TableCardSet(CardSet):
 
 				height_verified = np.std(heights) < 4
 				width_verified = np.std(widths) < 4
-				axis_verified = np.std(self.y) < 4
+				axis_verified = np.std([c.vertexes[0][1] for c in self.cards]) < 4
 				return all([height_verified, width_verified, axis_verified])
 		return False
 

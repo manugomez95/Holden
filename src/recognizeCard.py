@@ -68,7 +68,6 @@ def identifyCards(image, DEBUG=False):
 # input:	carta, imagen de la carta completa
 # output:	valor en formato string del 2 al 10, A, J, Q o K
 def obtain_value(value_im):
-	global alphabet
 	_, value_im = cv2.threshold(value_im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU);
 	value_im = cv2.GaussianBlur(value_im,(11,11),0)
 	value = pytesseract.image_to_string(value_im, config="--psm 10 -c tessedit_char_whitelist=A234567890JQK")

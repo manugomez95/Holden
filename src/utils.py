@@ -16,6 +16,8 @@ class Context:
 		self.status = "Initial scan in process..."
 		self.player_cards_flag = False
 
+context = Context()
+
 # output: las coordenadas de un marco seleccionado por el usuario
 def select_window():
 	mouse = pymouse.PyMouse()

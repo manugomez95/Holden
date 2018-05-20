@@ -47,8 +47,8 @@ def findTextNearPerimeter(im, outer_perimeter, inner_perimeter, DEBUG=False):
 	centers = [(round(x_o+0.60*w_o/2), round(y_o+h_o/2)), (round(x_o+1.4*w_o/2), round(y_o+h_o/2))]	# los dos centros de la elipse
 
 	if DEBUG and False:
-		cv2.circle(mock,centers[0], rad_distance, (0,0,255), 2)
-		cv2.circle(mock,centers[1], rad_distance, (0,0,255), 2)
+		cv2.circle(mock,centers[0], rad_distance, (0,255,0), 2)
+		cv2.circle(mock,centers[1], rad_distance, (0,255,0), 2)
 
 	th = image_area/1000
 	groups, uniquekeys = groupContoursByDistance(contours, centers, th)		# grupo -> ([lista de contornos], distancia media)

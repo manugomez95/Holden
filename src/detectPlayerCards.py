@@ -19,7 +19,7 @@ def getPlayerCards(image, cardSet):
 	[x, y, w, h] = cardSet.frame
 	card_im = image[y:y+h, x:x+w]
 	ret = identifyCards(card_im)	# lista de tuplas valor, palo
-	if len(ret) >= 2:
+	if not ret is None and len(ret) >= 2:
 		value, suit = ret[0]
 		cardSet.add(Card(value, suit, [[x, y],[int(x+w/2.4), y+h]]))
 		value, suit = ret[1]
@@ -62,7 +62,7 @@ def detectPlayerCards(image, white, player_loc, DEBUG=False):
 		if not ratio_one and not ratio_two:
 			continue
 
-		max_near = 3000
+		max_near = 6000
 		near = image.shape[0]*image.shape[1]/distance.euclidean(player_loc, [x, y])
 		if near < max_near:
 			continue

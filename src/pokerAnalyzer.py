@@ -38,7 +38,7 @@ class PokerAnalyzer:
 		if not self.table.cardSet.verified:	# tenemos las cartas de la mesa?
 			self.table.cardSet = getTableCards(screen, self.table.cardSet)
 		else:
-			#self.table.cardSet = getTableCards(screen, self.table.cardSet)	# TODO - queda bien en la foto, pero no hace falta
+			# self.table.cardSet = getTableCards(screen, self.table.cardSet)	# TODO - queda bien en la foto, pero no hace falta
 			if self.table.cardSet.white_tone is None:	# vale, tenemos las cartas de la mesa... tenemos el blanco?
 				self.table.cardSet.white_tone = getWhite(screen, self.table.cardSet)
 			elif self.playerCards is None and self.context.player_cards_flag:

@@ -1,6 +1,7 @@
 import unittest
 import sys, cv2, argparse
 from importlib import reload
+import time
 
 sys.path.insert(0, r'C:\Users\manue\Documents\TFG\Holden\src')
 
@@ -31,22 +32,6 @@ class TestCards(unittest.TestCase):
             cards = identifyCards(im, DEBUG)
             self.assertEqual(len(cards), 2)
 
-    def test_player_cards(self):
-        print("")
-        im = cv2.imread('../img/tables/table5.png')
-        p = PokerAnalyzer()
-        p.context.player_cards_flag = True
-        while p.initialScan(im):
-            pass
-        if DEBUG: p.show(im)
-
-        im = cv2.imread('../img/tables/table7.png')
-        p = PokerAnalyzer()
-        p.context.player_cards_flag = True
-        while p.initialScan(im):
-            pass
-        if DEBUG: p.show(im)
-
 class TestPlayers(unittest.TestCase):
     def test_detect_players(self):
         print("")
@@ -60,17 +45,28 @@ class TestPlayers(unittest.TestCase):
 
 class TestAll(unittest.TestCase):
     def test_initial_scan(self):
-        print("")
         for i in range(8):
+            print("")
             select = False
             if select:
                 x1,y1,x2,y2 = utils.select_window()
                 im = utils.cropped_screenshot(x1,y1,x2,y2)
             else:
                 im = cv2.imread('../img/tables/table'+str(i+1)+'.png')
+            print("Mesa ", i+1)
             p = PokerAnalyzer()
+            start = time.time()
             while p.initialScan(im):
             	pass
+            end = time.time()
+            print("Deteccion: ", end-start)
+
+            start = time.time()
+            p.refresh(im)
+            end = time.time()
+            print("Reconocimiento: ", end-start)
+
+            print(p)
             if DEBUG: p.show(im)
 
 def main(test, d):
@@ -84,6 +80,8 @@ def main(test, d):
         suite = unittest.TestLoader().loadTestsFromTestCase(TestPlayers)
     elif test == "all":
         suite = unittest.TestLoader().loadTestsFromTestCase(TestAll)
+    else:
+        return
 
     unittest.TextTestRunner(verbosity=2).run(suite)
 
